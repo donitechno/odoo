@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_pembayaran_wizard" model="ir.ui.view">
+        <field name="name">jewellery_management.pembayaran.view</field>
+        <field name="model">jewellery_management.pembayaran.wizard</field>
+         <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="pembayaran" create="0" update="0">
+                <group>
+                    <field name="amount_total" />
+                    <field name="jumlah_diterima" />
+                    <field name="sisa_kembalian" />
+                </group>
+                <button
+                    name="validate"
+                    string="confirm"
+                    type="object"
+                    class="oe_highlight"
+                />
+                or
+                <button string="Cancel" class="oe_link" special="cancel" />
+            </form>
+        </field>
+    </record>
+
+
+    <act_window
+        id="pembayaran_wizard_action"
+        name="pembayaran_wizard_action"
+        res_model="jewellery_management.pembayaran.wizard"
+        view_mode="form"
+        target="new"
+        view_id="view_pembayaran_wizard"
+    />
+</odoo>

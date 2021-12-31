@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+
+    <record id="purchase_order_view_form_inherit" model="ir.ui.view">
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+            <field name="product_qty" position="after">
+               <!-- <field name="weight"/>-->
+               <field name="nilairiil"/>
+               <field name="tarif"/>
+               <field name="nilaimurni" />
+               <!--<field name="currency_id" readonly="0"/>-->
+               <field name="nilaikonversi"/>
+               
+            </field>
+           <!-- <field name="price_unit" position="attributes">
+                <attribute name="invisible"></attribute>
+            </field>-->
+             <field name="taxes_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+             <field name="price_unit" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </field>
+             <field name="price_subtotal" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </field>
+            
+             <page name="purchase_delivery_invoice" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
+
+
+
+        </field>
+    </record>
+</odoo>

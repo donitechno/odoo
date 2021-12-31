@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+	 <menuitem id="menu_jewellery_management_root" name="Jewellery Management" sequence="919"/>
+
+     <menuitem id="menu_jewellery_management_pembelian" name="Pembelian" parent="menu_jewellery_management_root"/>
+     <menuitem id="menu_jewellery_management_penjualan" name="Penjualan" parent="menu_jewellery_management_root"/>
+     <menuitem id="menu_jewellery_management_mutasi_kas_bank" name="Mutasi Kas/Bank" parent="menu_jewellery_management_root"/>
+     <menuitem id="menu_jewellery_management_mutasi_barang" name="Mutasi Barang" parent="menu_jewellery_management_root"/>
+     <menuitem id="menu_jewellery_management_journal" name="Journal Umum" parent="menu_jewellery_management_root"/>
+     <menuitem id="menu_jewellery_management_report" name="Report" parent="menu_jewellery_management_root"/>
+     <menuitem id="menu_jewellery_management_setting" name="Konfigurasi" parent="menu_jewellery_management_root"/>
+
+            
+    
+     <record id="jewellery_management_purchase_order_from_supplier_tree" model="ir.ui.view">
+        <field name="name">order pembelian</field>
+        <field name="model">order.pembelian</field>
+        <field name="arch" type="xml">
+            <tree  string="Purchase Order" class="o_purchase_order">
+                    <field name="message_unread" invisible="1"/>
+                    <field name="partner_ref" optional="hide"/>
+                    <field name="name" string="Reference" readonly="1"/>
+                    <field name="date_order" invisible="not context.get('quotation_only', False)" optional="show"/>
+                    <field name="date_approve" invisible="1" optional="show"/>
+                    <field name="partner_id" string="Pelanggan"/>
+                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" optional="show"/>
+                    <field name="date_planned" string="Tanggal" invisible="context.get('quotation_only', False)" optional="show"/>
+                    <field name="user_id" string="User" optional="show"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide"/>
+                    <field name="amount_total" string="Total" sum="Total amount" widget="monetary" optional="show"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="state" invisible="1"/>
+                    <field name="invoice_status" optional="hide"/>
+                </tree>
+
+
+
+        </field>
+    </record>
+       <record id="jewellery_management_order_pembelian_form" model="ir.ui.view">
+            <field name="name">Jewellery.order.pembelian.form</field>
+            <field name="model">order.pembelian</field>
+            <field name="arch" type="xml">
+                <form string="Pembelian" class="o_purchase_order">
+                <header>
+                  <!--  <button name="action_rfq_send" states="draft" string="Send by Email" type="object" context="{'send_rfq':True}" class="oe_highlight"/>
+                    <button name="print_quotation" string="Print RFQ" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <button name="button_confirm" type="object" states="sent" string="Confirm Order" class="oe_highlight" id="bid_confirm"/>
+                    <button name="button_approve" type="object" states='to approve' string="Approve Order" class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                    <button name="action_view_invoice" string="Create Bill" type="object" class="oe_highlight" context="{'create_bill':True}" attrs="{'invisible': ['|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'in', ('no', 'invoiced'))]}"/>
+                    <button name="action_rfq_send" states="sent" string="Re-Send by Email" type="object" context="{'send_rfq':True}"/>
+                    <button name="print_quotation" string="Print RFQ" type="object" states="sent" groups="base.group_user"/>
+                    <button name="button_confirm" type="object" states="draft" string="Confirm Order" id="draft_confirm"/>
+                    <button name="action_rfq_send" states="purchase" string="Send PO by Email" type="object" context="{'send_rfq':False}"/>
+                    <button name="action_view_invoice" string="Create Bill" type="object" context="{'create_bill':True}" attrs="{'invisible': ['|', '|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'not in', ('no', 'invoiced')), ('order_line', '=', [])]}"/>
+                    <button name="button_draft" states="cancel" string="Set to Draft" type="object" />
+                    <button name="button_cancel" states="draft,to approve,sent,purchase" string="Cancel" type="object" />
+                    <button name="button_done" type="object" string="Lock" states="purchase"/>
+                    <button name="button_unlock" type="object" string="Unlock" states="done" groups="purchase.group_purchase_manager"/>-->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pay,validate" readonly="1"/>
+                    <!--<button name="action_invoice_register_payment" string="Pembayaran" type="object" class="oe_highlight" context="{'create_bill':True}" attrs="{'invisible': ['|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'in', ('no', 'invoiced'))]}"/>-->
+                     <button name="action_invoice_register_payment" string="Pembayaran" type="object" class="oe_highlight" attrs="{'invisible':['|',('state','in',('draft','validate'))]}"/>
+
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object"  name="action_view_invoice"
+                            class="oe_stat_button"
+                            icon="fa-pencil-square-o" attrs="{'invisible':['|', ('invoice_count', '=', 0), ('state', 'in', ('draft','pay','validate'))]}">
+                            <field name="invoice_count" widget="statinfo" string="Vendor Bills"/>
+                            <field name='invoice_ids' invisible="1"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                       <!-- <span class="o_form_label" attrs="{'invisible': [('state','not in',('draft','sent'))]}">Request for Quotation </span>-->
+                        <span class="o_form_label" attrs="{'invisible': [('state','in',('draft','pay'))]}">Pembelian </span>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
+                                placeholder="Name, TIN, Email, or Reference"
+                            />
+                            <field name="partner_ref"/>
+                            <field name="date_planned" invisible="1" />
+                            <field name="currency_id" groups="base.group_multi_currency" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="date_order"  string="Tanggal" attrs="{'invisible': [('state','in',('purchase','done'))]}"/>
+                           <!-- <field name="date_approve" attrs="{'invisible': [('state','not in',('purchase','done'))]}"/>
+                            <field name="origin" attrs="{'invisible': [('origin','=',False)]}"/>-->
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <field name="journal_id" domain="[('type','=','purchase')]" attrs="{'readonly':True}"/>
+                            
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Products">
+                            <field name="order_line"
+                                widget="section_and_note_one2many"
+                                mode="tree,kanban"
+                                context="{'default_state': 'draft'}"
+                                attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}">
+                                <tree string="Purchase Order Lines" editable="bottom">
+                                    <control>
+                                        <create name="add_product_control" string="Add a product"/>
+                                      <!--  <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
+                                        <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>-->
+                                    </control>
+                                    <field name="display_type" invisible="1"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="state" invisible="1" readonly="1"/>
+                                    <field name="product_type" invisible="1"/>
+                                    <field name="product_uom_category_id" invisible="1"/>
+                                    <field name="invoice_lines" invisible="1"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field
+                                        name="product_id"
+                                        attrs="{
+                                            'readonly': [('state', 'in', ('purchase', 'to approve','done', 'cancel'))],
+                                            'required': [('display_type', '=', False)],
+                                        }"
+                                        context="{'partner_id':parent.partner_id, 'quantity':product_qty,'uom':product_uom, 'company_id': parent.company_id}"
+                                        force_save="1" domain="[('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+                                    <field name="name" widget="section_and_note_text"/>
+                                    <field name="date_planned" optional="hide" attrs="{'required': [('display_type', '=', False)], 'readonly': [('parent.date_planned', '!=', False)]}"/>
+                                   <!-- <field name="account_analytic_id" optional="hide" context="{'default_partner_id':parent.partner_id}" groups="analytic.group_analytic_accounting" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+                                    <field name="analytic_tag_ids" optional="hide" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>-->
+                                    <field name="product_qty"/>
+                                    <field name ="tarif" />
+                                    <field name ="nilairiil" />
+                                    <field name ="nilaimurni" />
+                                    <field name ="currency_id" />
+                                    <field name ="nilaikonversi" />
+
+                                   <!-- <field name="qty_received_manual" invisible="1"/>
+                                    <field name="qty_received_method" invisible="1"/>
+                                    <field name="qty_received" string="Received" attrs="{'column_invisible': [('parent.state', 'not in', ('purchase', 'done'))], 'readonly': [('qty_received_method', '!=', 'manual')]}" optional="show"/>
+                                    <field name="qty_invoiced" string="Billed" attrs="{'column_invisible': [('parent.state', 'not in', ('purchase', 'done'))]}" optional="show"/>-->
+                                    <field name="product_uom" string="UoM" groups="uom.group_uom"
+                                        attrs="{
+                                            'readonly': [('state', 'in', ('purchase', 'done', 'cancel'))],
+                                            'required': [('display_type', '=', False)]
+                                        }"
+                                        force_save="1" optional="show"/>
+                                 <!--   <field name="price_unit" attrs="{'readonly': [('invoice_lines', '!=', [])]}"/>
+                                    <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase'), ('company_id', '=', parent.company_id)]" context="{'default_type_tax_use': 'purchase', 'search_view_ref': 'account.account_tax_view_search'}" options="{'no_create': True}" optional="show"/>-->
+                                    <field name="price_subtotal" widget="monetary"/>
+                                </tree>
+                             <!--   <form string="Purchase Order Line">
+                                        <field name="state" invisible="1"/>
+                                        <field name="display_type" invisible="1"/>
+                                        <group attrs="{'invisible': [('display_type', '!=', False)]}">
+                                            <group>
+                                                <field name="product_uom_category_id" invisible="1"/>
+                                                <field name="product_id"
+                                                       context="{'partner_id': parent.partner_id}"
+                                                       widget="many2one_barcode"
+                                                       domain="[('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
+                                                />
+                                                <label for="product_qty"/>
+                                                <div class="o_row">
+                                                    <field name="product_qty"/>
+                                                    <field name="product_uom" groups="uom.group_uom" attrs="{'required': [('display_type', '=', False)]}"/>
+                                                </div>
+                                                <field name="qty_received_method" invisible="1"/>
+                                                <field name="qty_received" string="Received Quantity" attrs="{'invisible': [('parent.state', 'not in', ('purchase', 'done'))], 'readonly': [('qty_received_method', '!=', 'manual')]}"/>
+                                                <field name="qty_invoiced" string="Billed Quantity" attrs="{'invisible': [('parent.state', 'not in', ('purchase', 'done'))]}"/>
+                                                <field name="price_unit"/>
+                                                <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use', '=', 'purchase'), ('company_id', '=', parent.company_id)]" options="{'no_create': True}"/>
+                                            </group>
+                                            <group>
+                                                <field name="date_planned" widget="date" attrs="{'required': [('display_type', '=', False)]}"/>
+                                                <field name="account_analytic_id" colspan="2" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting"/>
+                                                <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                            </group>
+                                            <group colspan="12">
+                                            <notebook>
+                                                <page string="Notes">
+                                                    <field name="name"/>
+                                                </page>
+                                                <page string="Invoices and Incoming Shipments">
+                                                    <field name="invoice_lines"/>
+                                                </page>
+                                            </notebook>
+                                            </group>
+                                        </group>
+                                        <label for="name" string="Section Name (eg. Products, Services)" attrs="{'invisible': [('display_type', '!=', 'line_section')]}"/>
+                                        <label for="name" string="Note" attrs="{'invisible': [('display_type', '!=', 'line_note')]}"/>
+                                        <field name="name" nolabel="1"  attrs="{'invisible': [('display_type', '=', False)]}"/>
+                                 </form>-->
+                                 <kanban class="o_kanban_mobile">
+                                     <field name="name"/>
+                                     <field name="product_id"/>
+                                     <field name="product_qty"/>
+                                     <field name="product_uom" groups="uom.group_uom"/>
+                                     <field name="price_subtotal"/>
+                                     <field name="price_tax" invisible="1"/>
+                                     <field name="price_total" invisible="1"/>
+                                     <field name="price_unit"/>
+                                     <field name="display_type"/>
+                                     <field name="taxes_id" invisible="1"/>
+                                     <templates>
+                                         <t t-name="kanban-box">
+                                             <div t-attf-class="oe_kanban_card oe_kanban_global_click {{ record.display_type.raw_value ? 'o_is_' + record.display_type.raw_value : '' }}">
+                                                 <t t-if="!record.display_type.raw_value">
+                                                     <div class="row">
+                                                         <div class="col-8">
+                                                             <strong>
+                                                                 <span t-esc="record.product_id.value"/>
+                                                             </strong>
+                                                         </div>
+                                                         <div class="col-4">
+                                                             <strong>
+                                                                 <span t-esc="record.price_subtotal.value" class="float-right text-right"/>
+                                                             </strong>
+                                                         </div>
+                                                     </div>
+                                                     <div class="row">
+                                                         <div class="col-12 text-muted">
+                                                             <span>
+                                                                 Quantity:
+                                                                 <t t-esc="record.product_qty.value"/>
+                                                                 <t t-esc="record.product_uom.value"/>
+                                                             </span>
+                                                         </div>
+                                                     </div>
+                                                     <div class="row">
+                                                         <div class="col-12 text-muted">
+                                                             <span>
+                                                                 Unit Price:
+                                                                 <t t-esc="record.price_unit.value"/>
+                                                             </span>
+                                                         </div>
+                                                     </div>
+                                                 </t>
+                                                 <div
+                                                     t-elif="record.display_type.raw_value === 'line_section' || record.display_type.raw_value === 'line_note'"
+                                                     class="row">
+                                                     <div class="col-12">
+                                                         <span t-esc="record.name.value"/>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </t>
+                                     </templates>
+                                 </kanban>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="1"/>
+                                <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="1"/>
+                                <div class="oe_subtotal_footer_separator oe_inline">
+                                    <label for="amount_total"/>
+                                </div>
+                                <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                            <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
+                            <div class="oe_clear"/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                </form>
+            </field>
+        </record>
+
+
+     <record id="jewellery_management_purchase_order_from_supplier_action" model="ir.actions.act_window">
+            <field name="name">Pembelian Dari Supplier</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">order.pembelian</field>
+             <field name="view_mode">tree,form</field>
+            <!--<field name="view_id" ref="jewellery_management_purchase_order_from_supplier_tree"/>-->
+           <!-- <field name="domain">[]</field>-->
+           <!-- <field name="search_view_id" ref="purchase.purchase_order_view_search"/>-->
+            <field name="context">{'default_journal_id':8}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a Pembelian
+              </p><p>
+                ini untuk nota dari pembelian supplier.
+              </p>
+            </field>
+     </record>
+
+     <record id="jewellery_management_purchase_order_from_titipan_action" model="ir.actions.act_window">
+            <field name="name">Pembelian Dari Titipan</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">order.pembelian</field>
+             <field name="view_mode">tree,form</field>
+            <!--<field name="view_id" ref="jewellery_management_purchase_order_from_supplier_tree"/>-->
+            <!--<field name="domain">[]</field>-->
+           <!-- <field name="search_view_id" ref="purchase.purchase_order_view_search"/>-->
+           <!--<field name="context">{'default_journal_id':11}</field>-->
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a Pembelian 
+              </p><p>
+                ini untuk nota dari pelanggan titipan.
+              </p>
+            </field>
+     </record>
+     
+     <record id="jewellery_management_purchase_order_from_cabang_action" model="ir.actions.act_window">
+            <field name="name">Pembelian Dari Cabang</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">order.pembelian</field>
+             <field name="view_mode">tree,form</field>
+            <!--<field name="view_id" ref="jewellery_management_purchase_order_from_supplier_tree"/>-->
+            <!--<field name="domain">[]</field>-->
+           <!-- <field name="search_view_id" ref="purchase.purchase_order_view_search"/>-->
+            <field name="context">{'default_journal_id':12}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a Pembelian 
+              </p><p>
+                ini untuk nota dari pelanggan titipan.
+              </p>
+            </field>
+     </record>
+     
+     <record id="jewellery_management_purchase_order_from_pelanggan_action" model="ir.actions.act_window">
+            <field name="name">Pembelian Dari Cabang</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">order.pembelian</field>
+             <field name="view_mode">tree,form</field>
+            <!--<field name="view_id" ref="jewellery_management_purchase_order_from_supplier_tree"/>-->
+            <!--<field name="domain">[]</field>-->
+           <!-- <field name="search_view_id" ref="purchase.purchase_order_view_search"/>-->
+            <field name="context">{'default_journal_id':13}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a Pembelian 
+              </p><p>
+                ini untuk nota dari pelanggan umum.
+              </p>
+            </field>
+     </record>
+
+
+    <menuitem id="menu_purchase_from_supplier" name="Pembelian dari Supplier"
+            parent="menu_jewellery_management_pembelian"
+            action="jewellery_management_purchase_order_from_supplier_action" sequence="101"/>
+            
+    <menuitem id="menu_purchase_from_titipan" name="Pembelian dari Titipan"
+            parent="menu_jewellery_management_pembelian"
+            action="jewellery_management_purchase_order_from_titipan_action" sequence="102"/>
+            
+    <menuitem id="menu_purchase_from_cabang" name="Pembelian dari Cabang"
+            parent="menu_jewellery_management_pembelian"
+            action="jewellery_management_purchase_order_from_cabang_action" sequence="103"/>
+            
+    <menuitem id="menu_purchase_from_pelanggan" name="Pembelian dari Pelanggan"
+            parent="menu_jewellery_management_pembelian"
+            action="jewellery_management_purchase_order_from_pelanggan_action" sequence="104"/>
+
+
+</odoo>

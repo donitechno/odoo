@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+     <record id="jewellery_management_mutasi_stock_tree" model="ir.ui.view">
+        <field name="name">jewellery_management_stock_tree</field>
+        <field name="model">mutasi.stock</field>
+        <field name="arch" type="xml">
+            <tree  string="Mutasi Stock" class="o_penjualan_order">
+            </tree>
+
+
+
+        </field>
+    </record>
+
+
+        <record id="jewellery_management_mutasi_stock_form" model="ir.ui.view">
+            <field name="name">jewellery.management.mutasi_stock_form</field>
+            <field name="model">mutasi.stock</field>
+            <field name="arch" type="xml">
+              <form string="Mutasi Stock Form" class="o_sale_order">
+                <header>
+                    <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="Cancel"/>
+                    <button name="action_draft" states="cancel" type="object" string="Set to Quotation"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,validate"/>-->
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+
+
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+
+                            <field name="penerima_id" />
+                            <field name="reference" />
+                            <field name="account_penerima_id" />
+
+
+                                <field name="nominal" />
+                                 <field name="currency_id" />
+
+                                <field name="note" />
+                        </group>
+                        <group>
+                             <field name="tanggal_diterima" />
+                             <field name="journal_id" />
+
+
+                        </group>
+                    </group>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+              </form>
+            </field>
+        </record>
+
+
+
+        <record id="menu_jewellery_management_mutasi_stock_action" model="ir.actions.act_window">
+           <field name="name">Mutasi Stock Action</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mutasi.stock</field>
+             <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="jewellery_management_mutasi_stock_tree"/>
+        </record>
+
+        <menuitem id="menu_jewellery_management_mutasi_stock"
+            name=" Mutasi stock"
+            parent="menu_jewellery_management_mutasi_barang"
+            action="menu_jewellery_management_mutasi_stock_action"
+            sequence="2"/>
+
+
+</odoo>

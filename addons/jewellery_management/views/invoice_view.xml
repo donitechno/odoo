@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_move_view_form_inherit" model="ir.ui.view">
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <field name="price_unit" position="before">     
+              <field name="nilairiil"/>
+              <field name="nilaimurni" />
+              <field name="nilaikonversi"/>   
+              </field>
+            
+                <field name="tax_ids" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+                <field name="price_unit" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+
+               <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']//tree//field['credit']" position="after">
+                <field name="debitkonversi" />
+                <field name="creditkonversi" />
+            </xpath>
+
+
+        </field>
+    </record>
+</odoo>

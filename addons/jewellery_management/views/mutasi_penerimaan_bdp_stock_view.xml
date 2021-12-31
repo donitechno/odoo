@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="jewellery_management_penerimaan_bahan_tree" model="ir.ui.view">
+        <field name="name">jewellery_management_penerimaan_bahan_tree</field>
+        <field name="model">mutasi.stock</field>
+        <field name="arch" type="xml">
+            <tree  string="Penerimaan bdp scrap" class="o_penjualan_order">
+                <field name="tanggal_diterima" />
+              <!--  <field name="penerima_id" />-->
+                <field name="note" />
+                <field name="nilairiil" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="jewellery_management_penerimaan_bahan_form" model="ir.ui.view">
+            <field name="name">jewellery.management.penerimaan_dbp_scrap_form</field>
+            <field name="model">mutasi.stock</field>
+            <field name="arch" type="xml">
+              <form string="BDP Scrap" class="o_sale_order">
+                <header>
+                    <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="Cancel"/>
+                    <button name="action_draft" states="cancel" type="object" string="Set to Quotation"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,validate"/>-->
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            PENERIMAAN EMAS BAHAN
+                        </h1>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <field name="account_sumber_id" string="Diterima dari " />
+                           <!-- <field name="penerima_id" string="Dari" />-->
+
+
+                            <!--<group><field name="currency_id" /></group>
+                            <group><field name="nilaikonversi"/></group>-->
+
+
+                        </group>
+                        <group>
+                             <field name="journal_id" />
+                             <field name="tanggal_diterima" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Stock Barang">
+                             <field
+                                name="account_line"
+                                widget="section_and_note_one2many"
+                                mode="tree"
+                            >
+
+                                <tree
+                                    string="Product"
+                                    editable="bottom">
+                                    <control>
+                                        <create name="add_product_control" string="Add Stock"/>
+                                    </control>
+                                     <!--<field name="name" widget="section_and_note_text"/>-->
+
+                                   <!-- <field name="sequence" widget="handle"/>-->
+
+                                    <field name ="account_sumber_id" />
+                                    <field name ="note" />
+                                    <field name="nilairiil" widget="monetary"/>
+                                    <field name="nilaikonversi" widget="monetary"/>
+                                    <field name="nilaimurni" widget="monetary"/>
+                                   </tree>
+
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+              </form>
+            </field>
+        </record>
+
+
+
+    <record id="menu_jewellery_management_mutasi_penerimaan_bahan_action" model="ir.actions.act_window">
+           <field name="name">Penerimaan BDP (BAHAN)</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mutasi.stock</field>
+             <field name="view_mode">form,tree</field>
+            <field name="view_id" ref="jewellery_management_penerimaan_bahan_tree"/>
+        </record>
+
+    <menuitem id="menu_jewellery_management_penerimaan_bahan"
+            name="Penerimaaan bahan"
+            parent="menu_jewellery_management_mutasi_barang"
+            action="menu_jewellery_management_mutasi_penerimaan_bahan_action"
+            sequence="9"/>
+
+
+</odoo>

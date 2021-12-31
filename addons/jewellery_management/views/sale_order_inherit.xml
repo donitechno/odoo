@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="sale_order_view_form_inherit_2" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <xpath expr="/form/sheet/notebook/page/field[@name='order_line']/tree/field[@name='product_uom_qty']" position="after">
+               <!-- <field name="weight"/>-->     
+              <field name="nilairiil"/>
+              <field name="tarif" />
+              <field name="nilaimurni" />
+              <field name="nilaikonversi"/>
+            </xpath>
+
+            <xpath expr="/form/sheet/notebook/page/field[@name='order_line']/tree/field[@name='tax_id']" position="attributes">
+                <field name="tax_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+            </xpath>
+
+             <field name="payment_term_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="price_unit" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </field>
+             <field name="validity_date" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+             <field name="amount_tax" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+             <page name="other_information" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
+              
+        </field>
+    </record>
+</odoo>

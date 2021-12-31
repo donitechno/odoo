@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+     <record id="jewellery_management_transfer_cash_bank_tree" model="ir.ui.view">
+        <field name="name">jewellery_management_tree</field>
+        <field name="model">mutasi.cash.bank</field>
+        <field name="arch" type="xml">
+            <tree  string="Transfer antar kas" class="o_penjualan_order">
+                <field name="tanggal_diterima" />
+                <field name="penerima_id" />
+                <field name="note" />
+                <field name="nilairiil" />
+            </tree>
+
+        </field>
+    </record>
+
+
+        <record id="jewellery_management_transfer_cash_bank_form" model="ir.ui.view">
+            <field name="name">jewellery.management.transfer_cash_bank_form</field>
+            <field name="model">mutasi.cash.bank</field>
+            <field name="arch" type="xml">
+              <form string="Kas Bank" class="o_sale_order">
+                <header>
+                    <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="Cancel"/>
+                    <button name="action_draft" states="cancel" type="object" string="Set to Quotation"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,validate"/>-->
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+
+
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            MUTASI KAS BANK
+                        </h1>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <field name="account_penerima_id" />
+                            <field name="penerima_id" />
+                            <field name="reference" />
+                            <field name="nilairiil"/>
+                            <!--<group><field name="currency_id" /></group>
+                            <group><field name="nilaikonversi"/></group>-->
+                            <field name="account_sumber_id" />
+                            <field name="note" />
+                        </group>
+                        <group>
+                             <field name="journal_id" />
+                             <field name="tanggal_diterima" />
+
+                        </group>
+                    </group>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+              </form>
+            </field>
+        </record>
+
+
+
+        <record id="menu_jewellery_management_transfer_cash_bank_action" model="ir.actions.act_window">
+           <field name="name">Transfer antar Kas</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mutasi.cash.bank</field>
+             <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="jewellery_management_transfer_cash_bank_tree"/>
+        </record>
+
+        <menuitem id="menu_jewellery_management_transfer_cash_bank"
+            name="Transfer Kas Bank"
+            parent="menu_jewellery_management_mutasi_kas_bank"
+            action="menu_jewellery_management_transfer_cash_bank_action"
+            sequence="2"/>
+
+
+</odoo>
