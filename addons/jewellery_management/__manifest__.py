@@ -11,7 +11,9 @@
     "category": "apps",
     "summary": "",
     "depends": ["mrp","purchase","account","sale"],
-    "data": ["wizard/product_weight_update_view.xml",
+    "data": [
+            "views/jewellery_management_view.xml",
+            "wizard/product_weight_update_view.xml",
             #"security/jewellery_management_security.xml",
             "security/ir.model.access.csv",
             "views/purchase_order_from_supplier.xml",
@@ -31,6 +33,7 @@
             "views/sale_order_inherit.xml",
             "views/res_currency_view_inherit.xml",
             "wizard/pembayaran_wizard.xml",
+            "views/dailyopen_view.xml",
 
              ],
     "installable": True,    

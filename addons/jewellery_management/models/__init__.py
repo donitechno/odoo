@@ -9,3 +9,5 @@ from . import order_pembelian
 from . import penjualan
 from . import mutasi_cash_bank
 from . import mutasi_stock
+from . import res_currency_rate
+

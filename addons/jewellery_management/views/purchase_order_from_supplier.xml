@@ -27,8 +27,8 @@
                     <field name="date_planned" string="Tanggal" invisible="context.get('quotation_only', False)" optional="show"/>
                     <field name="user_id" string="User" optional="show"/>
                     <field name="origin" optional="hide"/>
-                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide"/>
-                    <field name="amount_total" string="Total" sum="Total amount" widget="monetary" optional="show"/>
+                    <field name="total_nilaimurni" string="Total Nilai Murni" sum="Total Nilai Murni" widget="monetary" optional="show"/>
+                    <field name="total_nilaikonversi" string="Total Konversi" sum="Total Konversi" widget="monetary" optional="show"/>
                     <field name="currency_id" invisible="1"/>
                     <field name="state" invisible="1"/>
                     <field name="invoice_status" optional="hide"/>
@@ -81,12 +81,13 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
+                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier'}"
                                 placeholder="Name, TIN, Email, or Reference"
                             />
-                            <field name="partner_ref"/>
+                           <!-- <field name="partner_ref"/>-->
                             <field name="date_planned" invisible="1" />
-                            <field name="currency_id" groups="base.group_multi_currency" force_save="1"/>
+                           <!-- <field name="currency_id" groups="base.group_multi_currency" force_save="1"/>-->
+                            <field name="currency_id" force_save="1"/>
                         </group>
                         <group>
                             <field name="date_order"  string="Tanggal" attrs="{'invisible': [('state','in',('purchase','done'))]}"/>
@@ -94,7 +95,8 @@
                             <field name="origin" attrs="{'invisible': [('origin','=',False)]}"/>-->
                             <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                             <field name="journal_id" domain="[('type','=','purchase')]" attrs="{'readonly':True}"/>
-                            
+                            <field name="payment_acquirer_id" domain="[('state','=','enabled')]" />
+
                         </group>
                     </group>
                     <notebook>
@@ -129,11 +131,12 @@
                                     <field name="date_planned" optional="hide" attrs="{'required': [('display_type', '=', False)], 'readonly': [('parent.date_planned', '!=', False)]}"/>
                                    <!-- <field name="account_analytic_id" optional="hide" context="{'default_partner_id':parent.partner_id}" groups="analytic.group_analytic_accounting" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
                                     <field name="analytic_tag_ids" optional="hide" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>-->
-                                    <field name="product_qty"/>
-                                    <field name ="tarif" />
+                                    <field name ="product_qty"/>
                                     <field name ="nilairiil" />
+                                    <field name ="tarif" />
                                     <field name ="nilaimurni" />
-                                    <field name ="currency_id" />
+                                    <field name ="currency_id"  invisible="1"/>
+                                    <field name ="currency_rate" string="Kurs" />
                                     <field name ="nilaikonversi" />
 
                                    <!-- <field name="qty_received_manual" invisible="1"/>
@@ -148,7 +151,7 @@
                                         force_save="1" optional="show"/>
                                  <!--   <field name="price_unit" attrs="{'readonly': [('invoice_lines', '!=', [])]}"/>
                                     <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase'), ('company_id', '=', parent.company_id)]" context="{'default_type_tax_use': 'purchase', 'search_view_ref': 'account.account_tax_view_search'}" options="{'no_create': True}" optional="show"/>-->
-                                    <field name="price_subtotal" widget="monetary"/>
+                                    <!--<field name="price_subtotal" widget="monetary"/>-->
                                 </tree>
                              <!--   <form string="Purchase Order Line">
                                         <field name="state" invisible="1"/>
@@ -198,10 +201,10 @@
                                      <field name="product_id"/>
                                      <field name="product_qty"/>
                                      <field name="product_uom" groups="uom.group_uom"/>
-                                     <field name="price_subtotal"/>
-                                     <field name="price_tax" invisible="1"/>
-                                     <field name="price_total" invisible="1"/>
-                                     <field name="price_unit"/>
+                                    <!-- <field name="price_subtotal"/>-->
+                                     <!--<field name="price_tax" invisible="1"/>
+                                     <field name="price_total" invisible="1"/>-->
+                                    <!-- <field name="price_unit"/>-->
                                      <field name="display_type"/>
                                      <field name="taxes_id" invisible="1"/>
                                      <templates>
@@ -250,14 +253,21 @@
                                      </templates>
                                  </kanban>
                             </field>
-                            <group class="oe_subtotal_footer oe_right">
-                                <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="1"/>
-                                <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="1"/>
+                             <group class="oe_subtotal_footer oe_right">
                                 <div class="oe_subtotal_footer_separator oe_inline">
-                                    <label for="amount_total"/>
+                                    <label for="total_nilaikonversi"/>
                                 </div>
-                                <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="total_nilaikonversi" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
+                            <group class="oe_subtotal_footer oe_left">
+                                <div class="oe_subtotal_footer_separator oe_inline">
+                                    <label for="total_nilaimurni"/>
+                                </div>
+                                <field name="total_nilaimurni" sum="total nilai murni" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': '16'}"/>
+                            </group>
+
+
+
                             <field name="notes" class="oe_inline" placeholder="Define your terms and conditions ..."/>
                             <div class="oe_clear"/>
                         </page>

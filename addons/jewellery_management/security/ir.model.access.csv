@@ -8,5 +8,6 @@ access_mutasi_stock,mutasi.stock,model_mutasi_stock,base.group_user,1,1,1,1
 access_mutasi_cash_bank,mutasi.cash.bank,model_mutasi_cash_bank,base.group_user,1,1,1,1
 access_mutasi_cash_bank_detail,mutasi.cash.bank.detail,model_mutasi_cash_bank_detail,base.group_user,1,1,1,1
 access_mutasi_stock_detail,mutasi.stock.detail,model_mutasi_stock_detail,base.group_user,1,1,1,1
+access_res_currency_rate_line,res.currency.rate.line,model_res_currency_rate_line,base.group_user,1,1,1,1
 
 

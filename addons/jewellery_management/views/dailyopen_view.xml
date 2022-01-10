@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="jewellery_management_daily_open_tree" model="ir.ui.view">
+        <field name="name">jewellery_management_daily_open_tree</field>
+        <field name="model">res.currency.rate</field>
+        <field name="arch" type="xml">
+            <tree string="daily open" class="o_penjualan_order">
+                <field name="name" />
+                <field name="rate" />                <!--<field name="rate" />-->
+
+            </tree>
+        </field>
+    </record>
+
+    <record id="jewellery_management_daily_open_form" model="ir.ui.view">
+        <field name="model">res.currency.rate</field>
+        <field name="arch" type="xml">
+             <form string="daily open" class="o_purchase_order">
+                <group>
+                    <field name="name" />
+                    <field name="rate" string="Tarif Dasar"/>
+                </group>
+                <group>
+
+                </group>
+                 <notebook>
+                 <page string="daily open">
+                     <field name="currency_rate_lines"
+                            mode="tree">
+                         <tree editable="top">
+                             <field name="name" />
+                             <field name="tarifjualpersen" widget="percentage" />
+                             <field name="tarifjualnominal" widget="Monetary"/>
+                             <field name="tarifbelipersen" widget="percentage"/>
+                             <field name="tarifbelinominal" widget="Monetary" />
+                         </tree>
+                     </field>
+                 </page>
+                 </notebook>
+             </form>
+        </field>
+    </record>
+
+
+    <record id="jewellery_management_daily_open_action" model="ir.actions.act_window">
+            <field name="name">Daily Open</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.currency.rate</field>
+            <field name="view_mode">form,tree</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+              (0, 0, {'view_mode': 'tree', 'view_id': ref('jewellery_management_daily_open_tree')}),
+              (0, 0, {'view_mode': 'form', 'view_id': ref('jewellery_management_daily_open_form')})]" />
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a Pembelian
+              </p><p>
+                ini untuk nota dari pelanggan umum.
+              </p>
+            </field>
+     </record>
+
+    <menuitem id="menu_daily_open" name="Daily Open"
+            parent="menu_jewellery_management_setting"
+            action="jewellery_management_daily_open_action" sequence="104"/>
+
+</odoo>

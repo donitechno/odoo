@@ -13,10 +13,17 @@ class ResCurrency(models.Model):
     tarifjualpersen = fields.Float("tarif jual persen")
     tarifjualharga = fields.Float("tarif dalam nominal")
 
+    currency_rate_id = fields.Many2one('res.currency.rate', string="currency rate detail",
+                                       copy=False)
+
+
 
     @api.model
-    def create(self, vals):        
-        move_line = super(ResCurrency, self).create(vals)
+    def create(self, vals):
+        #currency= self.env['res.currency'].search([('name', '==', vals.name)])
+        #if(currency):
+
+        move_line = super(ResCurrency, self).write(vals)
         #import pdb
         #pdb.set_trace()
         return move_line

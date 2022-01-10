@@ -88,24 +88,32 @@ class OrderPembelian(models.Model):
         return self.type in self.get_outbound_types(include_receipts)
         
 		
-    @api.depends('order_line.price_total')
+    @api.depends('order_line.nilaikonversi','order_line.nilaimurni','currency_id')
     def _amount_all(self):
         for order in self:
-            amount_untaxed = amount_tax = 0.0
+            #amount_untaxed = amount_tax = 0.0
+            total_nilaikonversi = 0.0
+            total_nilaimurni = 0.0
             for line in order.order_line:
                 line._compute_amount()
-                amount_untaxed += line.price_subtotal
-                amount_tax += line.price_tax
+                #amount_untaxed += line.price_subtotal
+                #amount_tax += line.price_tax
+                total_nilaikonversi += line.nilaikonversi
+                total_nilaimurni += line.nilaimurni
+
+
             currency = order.currency_id or order.partner_id.property_purchase_currency_id or self.env.company.currency_id
             order.update({
-                'amount_untaxed': currency.round(amount_untaxed),
-                'amount_tax': currency.round(amount_tax),
-                'amount_total': amount_untaxed + amount_tax,
+                #'amount_untaxed': currency.round(amount_untaxed),
+                #'amount_tax': currency.round(amount_tax),
+                #'amount_total': amount_untaxed + amount_tax,
+                'total_nilaikonversi': total_nilaikonversi,
+                'total_nilaimurni': total_nilaimurni,
             })
             self._cek_amount_total()
 
     def _cek_amount_total(self):
-        if self.amount_total > 0.0:
+        if self.total_nilaimurni > 0.0:
             self.write({'state': 'pay'})
         else:
             self.write({'state': 'draft'})
@@ -174,7 +182,7 @@ class OrderPembelian(models.Model):
                                  help="Depicts the date where the Quotation should be validated and converted into a purchase order.")
     date_approve = fields.Datetime('Confirmation Date', readonly=1, index=True, copy=False)
     partner_id = fields.Many2one('res.partner', string='Vendor', required=True, states=READONLY_STATES,
-                                 change_default=True, tracking=True,
+
                                  domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
                                  help="You can find a vendor by its Name, TIN, Email or Internal Reference.")
     dest_address_id = fields.Many2one('res.partner',
@@ -210,10 +218,10 @@ class OrderPembelian(models.Model):
     # There is no inverse function on purpose since the date may be different on each line
     date_planned = fields.Datetime(string='Receipt Date', index=True)
 
-    amount_untaxed = fields.Monetary(string='Sub Total', store=True, readonly=True, compute='_amount_all',
-                                     tracking=True)
-    amount_tax = fields.Monetary(string='Taxes', store=True, readonly=True, compute='_amount_all')
-    amount_total = fields.Monetary(string='Total', store=True, readonly=True, compute='_amount_all')
+    #amount_untaxed = fields.Monetary(string='Sub Total', store=True, readonly=True, compute='_amount_all',
+    #                                tracking=True)
+    #amount_tax = fields.Monetary(string='Taxes', store=True, readonly=True, compute='_amount_all')
+    #amount_total = fields.Monetary(string='Total', store=True, readonly=True, compute='_amount_all')
 
     fiscal_position_id = fields.Many2one('account.fiscal.position', string='Fiscal Position',
                                          domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
@@ -232,6 +240,12 @@ class OrderPembelian(models.Model):
                                  readonly=True,
                                  help='Ratio between the purchase order currency and the company currency')
     account_id = fields.Many2one('account.account', related='order_line.product_id', string='Account', readonly=False)
+
+    payment_acquirer_id = fields.Many2one('payment.acquirer', required=True, string='Cara Pembayaran')
+    total_nilaimurni = fields.Float("Total Nilai Murni", digits=dp.get_precision('Stock Weight'),
+                              store=True, compute='_compute_amount')
+    total_nilaikonversi = fields.Float("Total Nilai Konversi", compute='_amount_all', digits=dp.get_precision('Stock Weight'),
+                                  store=True)
 
     @api.constrains('company_id', 'order_line')
     def _check_order_line_company_id(self):
@@ -273,8 +287,8 @@ class OrderPembelian(models.Model):
             name = po.name
             if po.partner_ref:
                 name += ' (' + po.partner_ref + ')'
-            if self.env.context.get('show_total_amount') and po.amount_total:
-                name += ': ' + formatLang(self.env, po.amount_total, currency_obj=po.currency_id)
+            #if self.env.context.get('show_total_amount') and po.amount_total:
+                #name += ': ' + formatLang(self.env, po.amount_total, currency_obj=po.currency_id)
             result.append((po.id, name))
         return result
 
@@ -607,9 +621,17 @@ class OrderPembelianDetail(models.Model):
             self.currency_id = self.order_id._default_currency_id()
 
         for record in self:
-            record.nilaikonversi = record.nilaimurni * record.currency_id.tarifbeliharga
+            record.nilaikonversi = record.nilaimurni * self.order_id.currency_id.tarifbeliharga
             record.price_unit = record.nilaikonversi
             record.price_subtotal = record.nilaikonversi
+
+    @api.depends('date_order', 'currency_id', 'company_id', 'company_id.currency_id')
+    def _compute_currency_rate(self):
+        for order in self:
+            order.currency_rate = self.env['res.currency']._get_conversion_rate(order.company_id.currency_id,
+                                                                                order.currency_id, order.company_id,
+                                                                                order.date_order)
+
 
     name = fields.Text(string='Description', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
@@ -624,7 +646,7 @@ class OrderPembelianDetail(models.Model):
     product_id = fields.Many2one('product.product', string='Product', domain=[('purchase_ok', '=', True)],
                                  change_default=True)
     product_type = fields.Selection(related='product_id.type', readonly=True)
-    price_unit = fields.Float(string='Unit Price', required=True, digits='Product Price')
+    price_unit = fields.Float(string='Unit Price', required=False, digits='Product Price')
 
     price_subtotal = fields.Monetary(compute='_compute_amount', string='Subtotal', store=True)
     price_total = fields.Monetary(compute='_compute_amount', string='Total', store=True)
@@ -665,11 +687,14 @@ class OrderPembelianDetail(models.Model):
 
     tarif = fields.Float("Tarif", digits=dp.get_precision('Stock Weight'))
     nilairiil = fields.Float("Nilai Riil", digits=dp.get_precision('Stock Weight'))
-    nilaimurni = fields.Float("Nilai Murni", digits=dp.get_precision('Stock Weight'), compute=_compute_nilaimurni,
+    nilaimurni = fields.Float("Nilai Murni", digits=dp.get_precision('Stock Weight'), compute='_compute_amount',
                               store=True)
     nilaikonversi = fields.Float("Nilai Konversi", digits=dp.get_precision('Stock Weight'),
-                                 compute=_compute_nilaikonversi, store=True)
+                                 compute='_compute_amount', store=True)
 
+    currency_rate = fields.Float("Currency Rate", compute='_compute_currency_rate', compute_sudo=True, store=True,
+                                 readonly=True,
+                                 help='Ratio between the purchase order currency and the company currency')
 
     _sql_constraints = [
         ('accountable_required_fields',
@@ -681,20 +706,20 @@ class OrderPembelianDetail(models.Model):
     ]
 
 
-    @api.depends('product_qty', 'price_unit', 'taxes_id')
+    @api.depends('product_qty', 'tarif', 'nilairiil','order_id.currency_id')
     def _compute_amount(self):
+        if not self.currency_id:
+            self.currency_id = self.order_id._default_currency_id()
+
         for line in self:
-            vals = line._prepare_compute_all_values()
-            taxes = line.taxes_id.compute_all(
-                vals['price_unit'],
-                vals['currency_id'],
-                vals['product_qty'],
-                vals['product'],
-                vals['partner'])
+            #vals = line._prepare_compute_all_values()
+            line.nilaimurni = (line.nilairiil * line.tarif) * line.product_qty
+            line.nilaikonversi = line.nilaimurni * self.order_id.currency_id.tarifbeliharga
             line.update({
-                'price_tax': sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
-                'price_total': taxes['total_included'],
-                'price_subtotal': taxes['total_excluded'],
+
+                'nilaimurni': line['nilaimurni'],
+                'nilaikonversi': line['nilaikonversi'],
+
             })
 
     def _prepare_compute_all_values(self):
